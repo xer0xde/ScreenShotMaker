@@ -2,14 +2,15 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 import json
 import time
 import concurrent.futures
+import logging
+from datetime import datetime
 
 input_folder = "C:\\Users\\nicoh\\Documents\\ScreenShotMaker\\input"
 output_folder = "C:\\Users\\nicoh\\Documents\\ScreenShotMaker\\output"
-extension_path = "C:\\Pfad\\Zur\\Erweiterung"  # Passe dies an den tatsächlichen Pfad an
+extension_path = "C:\\Pfad\\Zur\\Erweiterung"  an
 
 os.makedirs(output_folder, exist_ok=True)
 
@@ -19,24 +20,29 @@ chrome_options.add_argument("--disable-infobars")
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("--disable-popup-blocking")
 chrome_options.add_argument("--disable-gpu")
-
 chrome_options.add_argument(f"--load-extension={extension_path}")
 
-def capture_screenshot(title, url, screenshot_filename):
+# Setup logging
+logging.basicConfig(filename='logs.json', level=logging.INFO)
+
+def capture_screenshot(title, url, screenshot_filename, unique_id):
     driver = webdriver.Chrome(options=chrome_options)
     try:
         driver.get(url)
         time.sleep(5)
 
-        try:
-            accept_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Accept')]")
-            accept_button.click()
-        except Exception as e:
-            print(f"Button nicht gefunden: {e}")
-
         driver.set_window_size(1920, 1080)
 
         driver.save_screenshot(screenshot_filename, 'png')
+
+        # Log screenshot information
+        log_data = {
+            'Image_ID': unique_id,
+            'Website_Name': title,
+            'Timestamp': str(datetime.now())
+        }
+        logging.info(json.dumps(log_data))
+
     finally:
         driver.quit()
 
@@ -50,15 +56,16 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 
             futures = []
 
-            for item in data:
+            for idx, item in enumerate(data, start=1):
                 title = item['title']
                 url = item['website']
                 screenshot = item.get('screenshot', True)
 
                 if url is not None and screenshot:
-                    screenshot_filename = os.path.join(output_folder, f"{title}.png")
+                    unique_id = f"{idx}_{title.replace(' ', '_')}"
+                    screenshot_filename = os.path.join(output_folder, f"{unique_id}.png")
 
-                    future = executor.submit(capture_screenshot, title, url, screenshot_filename)
+                    future = executor.submit(capture_screenshot, title, url, screenshot_filename, unique_id)
                     futures.append(future)
 
             concurrent.futures.wait(futures)
