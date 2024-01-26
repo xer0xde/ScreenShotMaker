@@ -1,0 +1,2 @@
+selenium==3.141.0
+concurrent.futures==3.1.0
