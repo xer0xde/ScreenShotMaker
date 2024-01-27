@@ -1,0 +1,21 @@
+{
+  "name": "screenshot-script",
+  "version": "1.0.0",
+  "description": "Capture screenshots using Selenium WebDriver",
+  "main": "your_script.js",
+  "scripts": {
+    "start": "babel-node your_script.js"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
+    "selenium-webdriver": "^4.0.0-beta.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.3",
+    "@babel/core": "^7.14.3",
+    "@babel/preset-env": "^7.14.2"
+  }
+}
